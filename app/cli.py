@@ -65,7 +65,7 @@ def run():
     for game in games:
         # Search for existing shortcut by game name
         for shortcut in shortcuts:
-            if shortcut.app_name == game.name or shortcut.executable == game.executable:
+            if shortcut.executable == game.executable or shortcut.app_name == game.name:
                 shortcut.update_from_game(game)
                 entries.append(Entry(user, shortcut, game=game, enabled=True))
                 break
