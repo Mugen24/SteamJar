@@ -1,8 +1,12 @@
 import logging, json, pprint
+
+from app.images.steamgriddb import SearchResult
 from .entry import Entry
 from .steam import steam
 from .steam.shortcut import Shortcut
 from .games.containers import list_containers
+from pprint import pprint
+import textwrap
 
 def run():
     '''
@@ -59,13 +63,15 @@ def run():
     shortcuts = user.load_shortcuts()
     # print(shortcuts[0].to_dict())
     logging.info(f'Loaded {len(shortcuts)} shortcuts from Steam')
+    for shortcut in shortcuts:
+        pprint(shortcut.to_dict())
 
     # Create entries from games
     entries: list[Entry] = []
     for game in games:
         # Search for existing shortcut by game name
         for shortcut in shortcuts:
-            if shortcut.executable == game.executable or shortcut.app_name == game.name:
+            if shortcut.launch_options.split(" ")[-1] == game.executable:
                 shortcut.update_from_game(game)
                 entries.append(Entry(user, shortcut, game=game, enabled=True))
                 break
@@ -105,15 +111,27 @@ def run():
 
     for entry in entries:
         if entry.images.any_missing():
-            results = entry.images.search_game()
+            results: list[SearchResult] = entry.images.search_game()
             game_id = -1
-            if len(results) < 0:
+            if len(results) <= 0:
                 print(f"Unable to find {entry.shortcut.app_name} cover")
-            if len(results) > 0:
-                if len(results) != 1:
-                    print(f"More than one results for {entry.shortcut.app_name}. Defaulting to first match")
-
+            elif len(results) == 1:
                 entry.images.download_missing(results[1].id)
+            else:
+                if len(results) != 1:
+                    pprint((f"""
+                        Multile titles encountered: 
+                    """))
+                    for idx, value in enumerate(results):
+                        print(f"[{idx}] Title: {value.name}")
+                    try: 
+                        game_id = int(input("Please select id: "))
+                        entry.images.download_missing(results[game_id].id)
+                    except Exception as e:
+                        print(e)
+                #     print(results)
+                #     print(f"More than one results for {entry.shortcut.app_name}. Defaulting to first match")
+
 
     if len(response) == 0 or response.lower() == 'y' or response.lower() == 'yes':
         user.save_shortcuts(map(lambda e: e.shortcut, entries))
