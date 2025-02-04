@@ -4,9 +4,14 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import json, logging
+from dotenv import dotenv_values
 
 BASE_URL = 'https://www.steamgriddb.com/api/v2'
-API_KEY = '40e71625bff0718ebd25ebc459771543'
+# API_KEY = '40e71625bff0718ebd25ebc459771543'
+API_KEY = dotenv_values(".env").get("steamgridDB_api_key", None)
+if not API_KEY:
+    logging.warn("Invalid steamgridDB api key")
+
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:100.0) Gecko/20100101 Firefox/100.0'
 
 @dataclass

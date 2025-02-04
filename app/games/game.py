@@ -32,6 +32,10 @@ class Game:
         elif self.store == GameStore.EPIC_GAMES:
             from .stores import epic
             return epic.command(self)
+        elif self.store == GameStore.BOTTLE:
+            from .stores import bottle
+            return bottle.command(self)
+
         # Unsupported
         else:
             logging.error(f"Store {self.store} is not supported yet")
