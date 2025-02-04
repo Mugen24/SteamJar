@@ -57,15 +57,15 @@ def run():
 
     # Load user shortcuts
     shortcuts = user.load_shortcuts()
-    print(shortcuts[0].to_dict())
+    # print(shortcuts[0].to_dict())
     logging.info(f'Loaded {len(shortcuts)} shortcuts from Steam')
 
     # Create entries from games
-    entries = []
+    entries: list[Entry] = []
     for game in games:
         # Search for existing shortcut by game name
         for shortcut in shortcuts:
-            if shortcut.app_name == game.name:
+            if shortcut.app_name == game.name or shortcut.executable == game.executable:
                 shortcut.update_from_game(game)
                 entries.append(Entry(user, shortcut, game=game, enabled=True))
                 break
@@ -90,6 +90,7 @@ def run():
     
     # Print the shortcuts
     logging.info('Resulting shortcuts:')
+    print(entries)
     for entry in entries:
         shortcut = entry.shortcut
         exe = '...' if len(shortcut.executable) > 16 else ''
@@ -101,6 +102,19 @@ def run():
     # Select if save the shortcuts
     logging.info("Save new shortcuts?")
     response = input("Answer (Yes/no): ")
+
+    for entry in entries:
+        if entry.images.any_missing():
+            results = entry.images.search_game()
+            game_id = -1
+            if len(results) < 0:
+                print(f"Unable to find {entry.shortcut.app_name} cover")
+            if len(results) > 0:
+                if len(results) != 1:
+                    print(f"More than one results for {entry.shortcut.app_name}. Defaulting to first match")
+
+                entry.images.download_missing(results[1].id)
+
     if len(response) == 0 or response.lower() == 'y' or response.lower() == 'yes':
         user.save_shortcuts(map(lambda e: e.shortcut, entries))
         logging.info("Shortcuts saved")

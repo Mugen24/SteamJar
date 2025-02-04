@@ -59,4 +59,7 @@ class GameContainer:
         from .stores import epic
         games += epic.list_games(self)
 
+        from .stores import bottle
+        games += bottle.list_games(self)
+
         return games

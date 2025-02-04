@@ -2,7 +2,7 @@ import logging
 from typing import List
 from pathlib import Path
 
-from ..game import Game
+from ..game import Game, GameContainer
 from ..game_store import GameStore
 
 def command(game: 'Game') -> List[str]:
