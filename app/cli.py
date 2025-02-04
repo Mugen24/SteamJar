@@ -57,6 +57,7 @@ def run():
 
     # Load user shortcuts
     shortcuts = user.load_shortcuts()
+    print(shortcuts[0].to_dict())
     logging.info(f'Loaded {len(shortcuts)} shortcuts from Steam')
 
     # Create entries from games
