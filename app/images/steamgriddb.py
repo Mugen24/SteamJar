@@ -41,9 +41,11 @@ def download(file_url, file_path):
     req.add_header('User-Agent', USER_AGENT)
     try:
         with urllib.request.urlopen(req) as response:
+            print(response.read())
             with file_path.open('wb') as f:
                 f.write(response.read())
     except urllib.error.HTTPError as e:
+        print(e)
         logging.error(f'HTTPError {file_url}: {e}')
 
 def search(term):

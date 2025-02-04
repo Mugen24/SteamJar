@@ -5,6 +5,7 @@ from typing import List
 
 from . import steamgriddb
 from ..event import Event
+from time import sleep
 
 @dataclass
 class ImagePaths:
@@ -35,18 +36,20 @@ class EntryImages:
     def any_missing(self) -> bool:
         return self.paths.any_missing()
 
-    def search_game(self) -> List[int]:
+    def search_game(self) -> List[steamgriddb.SearchResult]:
         # Search for game
         return steamgriddb.search(self.entry.shortcut.app_name)
 
     def download_missing(self, game_id):
-
+        print(self.entry.shortcut.app_id)
+        print(game_id)
         self.status_event.invoke('Downloading 0%')
 
         # Download images
         if not self.paths.port.exists():
             logging.info(f'Downloading portrait image')
             steamgriddb.download_grid(game_id, self.paths.port)
+            print(self.paths.port)
         self.status_event.invoke('Downloading 25%')
 
         if not self.paths.logo.exists():
@@ -67,3 +70,4 @@ class EntryImages:
         # Send update
         self.status_event.invoke('Downloading 100%')
         self.missing_event.invoke(self.any_missing())
+        sleep(3)
