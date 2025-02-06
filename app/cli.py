@@ -62,16 +62,13 @@ def run():
     # Load user shortcuts
     shortcuts = user.load_shortcuts()
     # print(shortcuts[0].to_dict())
-    logging.info(f'Loaded {len(shortcuts)} shortcuts from Steam')
-    for shortcut in shortcuts:
-        pprint(shortcut.to_dict())
 
     # Create entries from games
     entries: list[Entry] = []
     for game in games:
         # Search for existing shortcut by game name
         for shortcut in shortcuts:
-            if shortcut.launch_options.split(" ")[-1] == game.executable:
+            if shortcut.app_name == game.name: 
                 shortcut.update_from_game(game)
                 entries.append(Entry(user, shortcut, game=game, enabled=True))
                 break
@@ -79,6 +76,10 @@ def run():
         else:
             entries.append(Entry(user, Shortcut.from_game(game), game=game, enabled=True))
     
+    print(len(entries))
+    for entry in entries:
+        print(entry.shortcut.app_name)
+        print(entry.shortcut.executable)
     # Add entries for shortcuts not already added
     for shortcut in shortcuts:
         if shortcut not in map(lambda e: e.shortcut, entries):
@@ -96,7 +97,6 @@ def run():
     
     # Print the shortcuts
     logging.info('Resulting shortcuts:')
-    print(entries)
     for entry in entries:
         shortcut = entry.shortcut
         exe = '...' if len(shortcut.executable) > 16 else ''
@@ -110,23 +110,30 @@ def run():
     response = input("Answer (Yes/no): ")
 
     for entry in entries:
+        logging.info(f"Processing: {entry.shortcut.app_name}[{entry.shortcut.app_id}]")
         if entry.images.any_missing():
+            logging.info(f"{entry.shortcut.app_name} have missing images")
+            logging.info(f"{entry.shortcut.app_name} have missing images")
+            logging.info(f"Searching for {entry.shortcut.app_name}")
             results: list[SearchResult] = entry.images.search_game()
+            logging.info(f"Results: {results}")
+
             game_id = -1
             if len(results) <= 0:
                 print(f"Unable to find {entry.shortcut.app_name} cover")
             elif len(results) == 1:
-                entry.images.download_missing(results[1].id)
+                entry.images.download_missing(results[0].id)
             else:
                 if len(results) != 1:
                     pprint((f"""
                         Multile titles encountered: 
                     """))
-                    for idx, value in enumerate(results):
-                        print(f"[{idx}] Title: {value.name}")
+                    # for idx, value in enumerate(results):
+                    #     print(f"[{idx}] Title: {value.name}")
                     try: 
-                        game_id = int(input("Please select id: "))
-                        entry.images.download_missing(results[game_id].id)
+                        # game_id = int(input("Please select id: "))
+                        # entry.images.download_missing(results[game_id].id)
+                        entry.images.download_missing(results[0].id)
                     except Exception as e:
                         print(e)
                 #     print(results)

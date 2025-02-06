@@ -41,9 +41,9 @@ def download(file_url, file_path):
     req.add_header('User-Agent', USER_AGENT)
     try:
         with urllib.request.urlopen(req) as response:
-            print(response.read())
             with file_path.open('wb') as f:
-                f.write(response.read())
+                data = response.read()
+                f.write(data)
     except urllib.error.HTTPError as e:
         print(e)
         logging.error(f'HTTPError {file_url}: {e}')
@@ -69,3 +69,41 @@ def download_hero(game_id, file_path):
     if len(data) > 0:
         file_url = data[0]['url']
         download(file_url, file_path)
+
+"""
+https://github.com/SteamGridDB/decky-steamgriddb/blob/f9891ee15b55a1b22fad3060131b62bae9a18558/main.py#L35
+async def set_shortcut_icon_from_url(self, appid, owner_id, url):
+        output_dir = get_userdata_config(owner_id) / 'grid'
+        ext = Path(urlparse(url).path).suffix
+        iconname = "%s_icon%s" % (appid, ext)
+        saved_path = await self.download_file(url, output_dir, file_name=iconname)
+        if saved_path:
+            return await self.set_shortcut_icon(appid, owner_id, path=saved_path)
+        else:
+            raise Exception("Failed to download icon from %s" % url)
+
+    async def set_shortcut_icon(self, appid, owner_id, path=None):
+        shortcuts_vdf = get_userdata_config(owner_id) / 'shortcuts.vdf'
+
+        d = binary_load(open(shortcuts_vdf, "rb"))
+        for shortcut in d['shortcuts'].values():
+            shortcut_appid = (shortcut['appid'] & 0xffffffff) | 0x80000000
+            if shortcut_appid == appid:
+                if shortcut['icon'] == path:
+                    return 'icon_is_same_path'
+
+                # Clear icon
+                if path is None:
+                    shortcut['icon'] = ''
+                else:
+                    shortcut['icon'] = path
+                binary_dump(d, open(shortcuts_vdf, 'wb'))
+                return True
+        raise Exception('Could not find shortcut to edit')
+"""
+def download_icon(game_id, file_path):
+    data = request(f'/icons/game/{game_id}')
+    if len(data) > 0:
+        file_url = data[0]['url']
+        download(file_url, file_path)
+
