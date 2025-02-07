@@ -41,7 +41,7 @@ class EntryImages:
     def any_missing(self) -> bool:
         print("H", not self.entry.shortcut.to_dict().get("icon", None))
         print("H", self.paths.any_missing())
-        return not (self.entry.shortcut.to_dict().get("icon", None) and self.paths.any_missing())
+        return (not self.entry.shortcut.to_dict().get("icon", None) or self.paths.any_missing())
 
     def search_game(self) -> List[steamgriddb.SearchResult]:
         # Search for game

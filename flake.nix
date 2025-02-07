@@ -19,6 +19,7 @@
                 python312Packages.pycairo
                 python312Packages.pygobject3
                 python312Packages.python-dotenv
+                python312Packages.pyaml
                 python312Full
                 gtk3-x11
             ];
