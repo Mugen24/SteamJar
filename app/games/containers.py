@@ -40,8 +40,8 @@ def list_containers() -> List['GameContainer']:
             bottle_desc = yaml.load(fp, yaml.FullLoader)
             if bottle_desc.get("Name", None) in bottles:
                 containers.append(GameContainer(
-                    display_name = bottle_path.stem,
-                    name = bottle_path.stem,
+                    display_name = bottle_desc.get("Name", None),
+                    name = bottle_desc.get("Name", None),
                     kind = GameContainerKind.BOTTLE,
                     path = bottle_path
                 ))
